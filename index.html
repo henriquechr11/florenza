@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Florenza — Seu Momento, Sua Essência</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Dancing+Script:wght@400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+
+<style>
+  :root {
+    --cream: #E8E2D5;
+    --cream-light: #F2EDE4;
+    --cream-mid: #E0D7C6;
+    --brown-dark: #3D1A00;
+    --brown-mid: #6B3200;
+    --brown-logo: #5C2E00;
+    --green: #2A5C34;
+    --tan: #B8956A;
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --text-dark: #2A1A0A;
+    --text-mid: #5C3D1E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--text-dark);
+    font-family: 'Cormorant Garamond', serif;
+    font-feature-settings: "liga" 1, "kern" 1;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--brown-dark);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--brown-mid);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease, width 0.3s ease, height 0.3s ease;
+    opacity: 0.6;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9997;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 28px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    mix-blend-mode: multiply;
+  }
+  nav.scrolled {
+    background: rgba(232, 226, 213, 0.85);
+    backdrop-filter: blur(12px);
+    padding: 18px 60px;
+    mix-blend-mode: normal;
+    border-bottom: 1px solid rgba(93, 46, 0, 0.1);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.35em;
+    color: var(--brown-dark);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .nav-links {
+    display: flex;
+    gap: 48px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brown-mid);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--brown-dark); }
+
+  /* HERO */
+  #hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(to bottom, var(--cream-light) 0%, var(--cream-mid) 100%);
+  }
+
+  #rain-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* LOADING SCREEN */
+  #loading-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--cream);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #loading-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    letter-spacing: 0.4em;
+    color: var(--brown-dark);
+    text-transform: uppercase;
+    opacity: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--brown-mid);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .hero-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(6.5rem, 15vw, 13rem);
+    font-weight: 400;
+    color: var(--brown-dark);
+    line-height: 0.9;
+    letter-spacing: 0.05em;
+    overflow: hidden;
+  }
+
+  .hero-logo-text .char {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(100px) rotate(8deg);
+  }
+
+  .hero-tagline {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    color: var(--brown-mid);
+    opacity: 0;
+    transform: translateY(30px);
+    letter-spacing: 0.02em;
+  }
+
+  .hero-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--brown-mid), transparent);
+    opacity: 0;
+    margin-top: 16px;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    z-index: 2;
+  }
+  .scroll-hint span {
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--brown-mid);
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: var(--brown-mid);
+    animation: scrollPulse 2s ease-in-out infinite;
+    transform-origin: top;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { scaleY: 1; opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  /* SECTIONS COMMON */
+  section {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--tan);
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  /* CONCEITO */
+  #conceito {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 140px 10vw;
+    background: var(--cream-light);
+  }
+
+  .conceito-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 100px;
+    align-items: center;
+  }
+
+  .conceito-left {
+    position: relative;
+    padding-left: 32px;
+  }
+  .conceito-line {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 1px;
+    height: 100%;
+    background: var(--gold);
+    transform-origin: bottom;
+    transform: scaleY(0);
+  }
+
+  .conceito-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 12rem;
+    font-weight: 400;
+    color: rgba(232, 226, 213, 0.5);
+    position: absolute;
+    top: -60px;
+    left: -20px;
+    line-height: 1;
+    -webkit-text-stroke: 1px rgba(107, 50, 0, 0.2);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .conceito-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--brown-dark);
+    position: relative;
+    z-index: 1;
+  }
+
+  .conceito-title em {
+    font-style: italic;
+    color: var(--brown-mid);
+  }
+
+  .conceito-right {}
+
+  .conceito-text {
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.9;
+    color: var(--text-mid);
+    font-weight: 300;
+    margin-bottom: 40px;
+  }
+
+  .conceito-divider {
+    width: 60px;
+    height: 1px;
+    background: var(--gold);
+    margin: 32px 0;
+  }
+
+  .conceito-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .value-tag {
+    border: 1px solid var(--tan);
+    padding: 6px 18px;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--brown-mid);
+    border-radius: 20px;
+  }
+
+  /* PILARES */
+  #pilares {
+    min-height: 100vh;
+    padding: 140px 8vw;
+    background: var(--brown-dark);
+    position: relative;
+  }
+
+  #pilares::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 60%);
+  }
+
+  .pilares-header {
+    text-align: center;
+    margin-bottom: 90px;
+  }
+
+  .pilares-header .section-label {
+    color: var(--gold);
+    opacity: 0.7;
+  }
+
+  .pilares-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    color: var(--cream-light);
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .pilares-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .pilar-card {
+    position: relative;
+    padding: 60px 36px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.6s ease;
+    will-change: transform;
+  }
+
+  .pilar-card[data-index="0"] { background: rgba(0,0,0,0.25); }
+  .pilar-card[data-index="1"] { background: rgba(0,0,0,0.18); }
+  .pilar-card[data-index="2"] { background: rgba(0,0,0,0.10); }
+  .pilar-card[data-index="3"] { background: rgba(0,0,0,0.04); }
+
+  .pilar-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+    z-index: 2;
+  }
+
+  .pilar-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(201,168,76,0.15) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .pilar-card:hover { border-color: rgba(201,168,76,0.2); }
+  .pilar-card:hover::before { transform: scaleX(1); }
+  .pilar-card:hover::after { opacity: 1; }
+
+  .pilar-num, .pilar-icon, .pilar-name, .pilar-sub, .pilar-desc {
+    position: relative;
+    z-index: 1;
+  }
+
+  .pilar-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    color: rgba(201,168,76,0.15);
+    line-height: 1;
+    margin-bottom: 32px;
+    font-weight: 400;
+    clip-path: inset(100% 0 0 0);
+  }
+
+  .pilar-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 28px;
+    opacity: 0.7;
+  }
+
+  .pilar-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--cream-light);
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+
+  .pilar-sub {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .pilar-desc {
+    font-size: 0.92rem;
+    line-height: 1.8;
+    color: rgba(232, 226, 213, 0.55);
+    font-weight: 300;
+  }
+
+  /* UNIVERSO VISUAL */
+  #universo {
+    padding: 160px 10vw;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .universo-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 100px;
+    align-items: center;
+  }
+
+  .universo-canvas-wrap {
+    position: relative;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #flower-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .universo-text {}
+
+  .universo-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    color: var(--brown-dark);
+    line-height: 1.2;
+    margin-bottom: 32px;
+    font-weight: 400;
+  }
+
+  .universo-title em { font-style: italic; color: var(--brown-mid); }
+
+  .universo-body {
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: var(--text-mid);
+    font-weight: 300;
+    margin-bottom: 48px;
+  }
+
+  .palette-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .palette-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  .palette-dot:hover {
+    transform: scale(1.1);
+  }
+  .palette-dot::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    color: var(--text-mid);
+    white-space: nowrap;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+  .palette-dot:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* MANIFESTO */
+  #manifesto {
+    min-height: 100vh;
+    background: var(--cream-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 140px 10vw;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 150px rgba(61, 26, 0, 0.15);
+  }
+
+  #manifesto::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(42,92,52,0.06) 0%, transparent 60%);
+  }
+
+  .manifesto-inner {
+    max-width: 900px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .manifesto-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    color: var(--brown-dark);
+    line-height: 1.5;
+    font-weight: 400;
+    font-style: italic;
+    margin-bottom: 48px;
+  }
+
+  .manifesto-quote .word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(30px);
+    text-shadow: 0 0 20px rgba(201,168,76,0);
+  }
+
+  .manifesto-body {
+    font-size: 1.05rem;
+    line-height: 2;
+    color: var(--text-mid);
+    font-weight: 300;
+    max-width: 680px;
+    margin: 0 auto 48px;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .manifesto-sig {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2rem;
+    color: var(--brown-mid);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .manifesto-ornament {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin: 40px auto;
+  }
+
+  footer {
+    background: var(--brown-dark);
+    padding: 80px 10vw 50px;
+    text-align: center;
+    position: relative;
+  }
+  .footer-top-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    transform: scaleX(0);
+    transform-origin: center;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--cream);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+
+  .footer-tag {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1rem;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 48px;
+    display: block;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    list-style: none;
+    margin-bottom: 60px;
+  }
+
+  .footer-links a {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(232, 226, 213, 0.45);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--cream); }
+
+  .footer-social {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 60px;
+  }
+
+  .social-link {
+    width: 44px; height: 44px;
+    border: 1px solid rgba(232,226,213,0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: border-color 0.3s, background 0.3s, transform 0.3s ease;
+    will-change: transform;
+  }
+  .social-link:hover {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.1);
+    transform: rotate(15deg);
+  }
+  .social-link svg { width: 16px; height: 16px; fill: var(--cream); opacity: 0.6; }
+
+  .footer-copy {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: rgba(232,226,213,0.25);
+    text-transform: uppercase;
+  }
+
+  /* PETALS */
+  .petal {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+  }
+
+  /* CLIP PATH TRANSITIONS */
+  .reveal-section {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  /* PARALLAX BG TEXT */
+  .bg-text {
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: 20vw;
+    font-weight: 700;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(107,50,0,0.05);
+    pointer-events: none;
+    white-space: nowrap;
+    user-select: none;
+    line-height: 1;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 24px 30px; }
+    .conceito-inner { grid-template-columns: 1fr; gap: 60px; }
+    .pilares-grid { grid-template-columns: repeat(2, 1fr); }
+    .universo-inner { grid-template-columns: 1fr; }
+    .universo-canvas-wrap { height: 340px; }
+  }
+
+  @media (max-width: 600px) {
+    .pilares-grid { grid-template-columns: 1fr; }
+    nav .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div id="loading-logo">Florenza</div>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">Florenza</div>
+  <ul class="nav-links">
+    <li><a href="#conceito">Conceito</a></li>
+    <li><a href="#pilares">Essência</a></li>
+    <li><a href="#universo">Universo</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="rain-canvas"></canvas>
+  <div class="hero-content">
+    <h1 class="hero-logo-text" id="heroLogo">FLORENZA</h1>
+    <p class="hero-tagline">Seu Momento, Sua Essência</p>
+    <div class="hero-line"></div>
+  </div>
+  <div class="scroll-hint">
+    <span>Explore</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- CONCEITO -->
+<section id="conceito">
+  <div class="bg-text" style="top: -40px; right: -5vw;">Flor</div>
+  <div class="conceito-inner">
+    <div class="conceito-left">
+      <div class="conceito-line"></div>
+      <div class="conceito-number">01</div>
+      <span class="section-label">Conceito</span>
+      <h2 class="conceito-title">
+        O perfume como<br><em>identidade</em> e<br>bem-estar
+      </h2>
+    </div>
+    <div class="conceito-right">
+      <p class="conceito-text">
+        A Florenza é uma marca que transforma o jeito de usar perfume, unindo fragrâncias sofisticadas e óleos essenciais que promovem o bem-estar em cada momento do dia.
+      </p>
+      <div class="conceito-divider"></div>
+      <p class="conceito-text">
+        Mais do que deixar a pessoa cheirosa, nossos perfumes ajudam a trazer equilíbrio emocional e confiança, de acordo com a situação. Nossas embalagens são sustentáveis e cada detalhe é pensado para valorizar a natureza, o autocuidado e a experiência de quem usa.
+      </p>
+      <div class="conceito-values">
+        <span class="value-tag">Sustentabilidade</span>
+        <span class="value-tag">Autocuidado</span>
+        <span class="value-tag">Bem-estar</span>
+        <span class="value-tag">Natureza</span>
+        <span class="value-tag">Identidade</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PILARES -->
+<section id="pilares">
+  <div class="pilares-header">
+    <span class="section-label">Os Quatro Momentos</span>
+    <h2 class="pilares-title">A essência de cada<br><em style="font-style:italic; color: var(--gold-light);">estado emocional</em></h2>
+  </div>
+  <div class="pilares-grid">
+
+    <div class="pilar-card" data-index="0">
+      <div class="pilar-num">01</div>
+      <svg class="pilar-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="24" cy="24" r="20" stroke="#C9A84C" stroke-width="1"/>
+        <line x1="24" y1="8" x2="24" y2="40" stroke="#C9A84C" stroke-width="1"/>
+        <line x1="8" y1="24" x2="40" y2="24" stroke="#C9A84C" stroke-width="1"/>
+        <circle cx="24" cy="24" r="4" fill="#C9A84C" opacity="0.6"/>
+      </svg>
+      <h3 class="pilar-name">Foco</h3>
+      <span class="pilar-sub">Clareza</span>
+      <p class="pilar-desc">Para os momentos que exigem presença total. Uma fragrância que afina os sentidos e conduz a mente ao essencial, com nitidez e intenção.</p>
+    </div>
+
+    <div class="pilar-card" data-index="1">
+      <div class="pilar-num">02</div>
+      <svg class="pilar-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 8 C14 12 10 20 14 28 C18 36 30 36 34 28 C38 20 34 12 24 8Z" stroke="#C9A84C" stroke-width="1" fill="none"/>
+        <path d="M20 24 Q24 28 28 24" stroke="#C9A84C" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+      <h3 class="pilar-name">Relaxamento</h3>
+      <span class="pilar-sub">Serenidade</span>
+      <p class="pilar-desc">Um convite ao silêncio interno. Notas que desaceleram o ritmo, dissolvem a tensão e devolvem ao corpo sua leveza natural.</p>
+    </div>
+
+    <div class="pilar-card" data-index="2">
+      <div class="pilar-num">03</div>
+      <svg class="pilar-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="24,6 30,18 44,20 34,30 37,44 24,37 11,44 14,30 4,20 18,18" stroke="#C9A84C" stroke-width="1" fill="none"/>
+      </svg>
+      <h3 class="pilar-name">Autoconfiança</h3>
+      <span class="pilar-sub">Luz</span>
+      <p class="pilar-desc">A fragrância que carrega a sua presença antes mesmo de você entrar. Quente, marcante, inesquecível — como você em seu melhor momento.</p>
+    </div>
+
+    <div class="pilar-card" data-index="3">
+      <div class="pilar-num">04</div>
+      <svg class="pilar-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="20" r="8" stroke="#C9A84C" stroke-width="1"/>
+        <circle cx="32" cy="20" r="8" stroke="#C9A84C" stroke-width="1"/>
+        <path d="M24 36 C20 30 16 28 16 28 M24 36 C28 30 32 28 32 28" stroke="#C9A84C" stroke-width="1" stroke-linecap="round"/>
+      </svg>
+      <h3 class="pilar-name">Conexão</h3>
+      <span class="pilar-sub">Encontro</span>
+      <p class="pilar-desc">Para os encontros que importam. Um aroma que cria pontes entre pessoas, que faz do momento compartilhado algo que permanece na memória.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- UNIVERSO VISUAL -->
+<section id="universo">
+  <div class="universo-inner">
+    <div class="universo-canvas-wrap">
+      <div class="flower-halo" style="position:absolute; width: 60%; aspect-ratio: 1; background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0; pointer-events: none;"></div>
+      <model-viewer
+        id="model3d"
+        src="model.glb"
+        auto-rotate
+        auto-rotate-delay="0"
+        rotation-per-second="30deg"
+        camera-controls
+        disable-zoom
+        interaction-prompt="none"
+        shadow-intensity="0.4"
+        exposure="1.2"
+        style="width: 100%; height: 100%; background: transparent;"
+      ></model-viewer>
+    </div>
+    <div class="universo-text">
+      <span class="section-label">Universo Visual</span>
+      <h2 class="universo-title">Uma <em>estética</em> que<br>nasce da natureza</h2>
+      <p class="universo-body">
+        Cada elemento visual da Florenza foi pensado para evocar o orgânico, o sensorial e o sustentável. Da flor que assina nossa identidade às embalagens cuidadosamente desenhadas, tudo comunica o mesmo cuidado: com quem usa e com o mundo ao redor.
+      </p>
+      <div class="palette-line" style="width: 100%; height: 1px; background: var(--gold); transform-origin: left; transform: scaleX(0); margin: 30px 0;"></div>
+      <div class="palette-row" style="margin-bottom: 36px;">
+        <div class="palette-dot" style="background:#3D1A00;" data-name="Raiz"></div>
+        <div class="palette-dot" style="background:#6B3200;" data-name="Terra"></div>
+        <div class="palette-dot" style="background:#2A5C34;" data-name="Verde"></div>
+        <div class="palette-dot" style="background:#C9A84C;" data-name="Ouro"></div>
+        <div class="palette-dot" style="background:#E8E2D5;" data-name="Crème" style="border:1px solid #B8956A;"></div>
+      </div>
+      <p style="font-size:0.7rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--tan); margin-top: 48px;">Tipografias: Playfair Display · Dancing Script</p>
+    </div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section id="manifesto">
+  <div class="manifesto-inner">
+    <span class="section-label" style="display:block; text-align:center; margin-bottom:40px;">Manifesto</span>
+    <blockquote class="manifesto-quote" id="manifestoQuote">
+      Perfume pode ser mais do que um aroma — pode ser cuidado, identidade e bem-estar em forma de fragrância.
+    </blockquote>
+    <div class="manifesto-ornament"></div>
+    <p class="manifesto-body" id="manifestoBody">
+      A Florenza nasce para mostrar que cada momento merece sua essência. Que o bem-estar não é um luxo — é uma escolha que começa no autocuidado, floresce nas pequenas cerimônias do dia e permanece na memória de quem está ao redor.
+    </p>
+    <div class="manifesto-sig" id="manifestoSig">Florenza</div>
+    <div class="manifesto-ornament-bottom" style="font-family:'Cormorant Garamond',serif; font-size: 1.2rem; color: var(--gold); opacity:0; margin-top:20px;">— ✦ —</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top-line"></div>
+  <div class="footer-logo">FLORENZA</div>
+  <span class="footer-tag">Seu Momento, Sua Essência</span>
+  <ul class="footer-links">
+    <li><a href="#conceito">Conceito</a></li>
+    <li><a href="#pilares">Essência</a></li>
+    <li><a href="#universo">Universo</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+  </ul>
+  <div class="footer-social">
+    <a href="#" class="social-link" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+    </a>
+    <a href="#" class="social-link" aria-label="Facebook">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
+    <a href="#" class="social-link" aria-label="Pinterest">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+    </a>
+  </div>
+  <p class="footer-copy">© 2025 Florenza. Todos os direitos reservados.</p>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+
+<script>
+// ===================== LENIS SETUP =====================
+const lenis = new Lenis({
+  duration: 1.5,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  direction: 'vertical',
+  gestureDirection: 'vertical',
+  smooth: true,
+  mouseMultiplier: 1,
+  smoothTouch: false,
+  touchMultiplier: 2,
+  infinite: false,
+});
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
+// Integrate with GSAP
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time)=>{ lenis.raf(time * 1000); });
+gsap.ticker.lagSmoothing(0);
+
+// ===================== LOADING SCREEN =====================
+gsap.to('#loading-logo', { 
+  opacity: 1, duration: 1.5, ease: 'power2.inOut', yoyo: true, repeat: 1, 
+  onComplete: () => {
+    gsap.to('#loading-screen', { 
+      opacity: 0, duration: 0.8, 
+      onComplete: () => {
+        document.getElementById('loading-screen').style.display = 'none';
+        if(typeof initHeroAnim === 'function') initHeroAnim();
+      }
+    });
+  }
+});
+
+// ===================== PERFORMANCE AND FALLBACK =====================
+gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ limitCallbacks: true });
+
+// Optimize elements with will-change
+gsap.set('.char, .word, .pilar-card, .bg-text, .universo-canvas-wrap, .universo-title, .conceito-text, #model3d', { willChange: 'transform, opacity' });
+
+// ===================== CURSOR =====================
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = 0, my = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  gsap.to(cursor, { x: mx, y: my, duration: 0.1, ease: 'none' });
+  gsap.to(cursorRing, { x: mx, y: my, duration: 0.25, ease: 'power2.out' });
+});
+
+document.querySelectorAll('a, .pilar-card').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    gsap.to(cursor, { width: 6, height: 6, duration: 0.3 });
+    gsap.to(cursorRing, { width: 56, height: 56, borderColor: '#C9A84C', duration: 0.3 });
+  });
+  el.addEventListener('mouseleave', () => {
+    gsap.to(cursor, { width: 12, height: 12, duration: 0.3 });
+    gsap.to(cursorRing, { width: 36, height: 36, borderColor: '#6B3200', duration: 0.3 });
+  });
+});
+
+// ===================== NAV SCROLL =====================
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 80);
+});
+
+// ===================== UTILS =====================
+function splitTextWords(element) {
+  const words = element.textContent.trim().split(/\s+/);
+  element.innerHTML = words.map(w => `<span class="word" style="display:inline-block; opacity:0; transform:translateY(20px);">${w}&nbsp;</span>`).join('');
+  return element.querySelectorAll('.word');
+}
+
+// ===================== GLOBAL SETUP =====================
+let isTabActive = true;
+document.addEventListener("visibilitychange", () => {
+  isTabActive = !document.hidden;
+});
+
+// ===================== HERO 2D CANVAS — PETALS =====================
+
+(function initHeroPetals() {
+  const canvas = document.getElementById('rain-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  let width, height;
+  let petals = [];
+  const maxPetals = window.innerWidth < 768 ? 40 : 100;
+  
+  const palette = [
+    'rgba(61, 26, 0, OPACITY)',   // Raiz (#3D1A00)
+    'rgba(107, 50, 0, OPACITY)',  // Terra (#6B3200)
+    'rgba(42, 92, 52, OPACITY)',  // Verde (#2A5C34)
+    'rgba(201, 168, 76, OPACITY)',// Ouro (#C9A84C)
+    'rgba(232, 226, 213, OPACITY)'// Creme (#E8E2D5)
+  ];
+
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Petal {
+    constructor() {
+      this.reset(true);
+    }
+    reset(initial = false) {
+      this.x = Math.random() * width * 1.5 - width * 0.25;
+      this.y = initial ? Math.random() * height : -20;
+      this.z = Math.random() * 0.6 + 0.2; // depth: 0.2 (far) to 0.8 (near)
+      this.size = (Math.random() * 8 + 6) * this.z;
+      this.speedY = (Math.random() * 1.5 + 1) * this.z; // Slower falling speed
+      this.speedX = (Math.random() * 1 - 0.5) * this.z; 
+      
+      this.rotation = Math.random() * Math.PI * 2;
+      this.rotationSpeed = (Math.random() * 0.04 - 0.02);
+      
+      this.wobble = Math.random() * Math.PI * 2;
+      this.wobbleSpeed = Math.random() * 0.05 + 0.02;
+      
+      const baseColor = palette[Math.floor(Math.random() * palette.length)];
+      this.opacity = this.z * 0.6 + 0.2; 
+      this.color = baseColor.replace('OPACITY', this.opacity);
+    }
+    update(mouseX) {
+      // Wind reacts slightly to mouse
+      let windForce = ((mouseX / width) - 0.5) * 2 * this.z;
+      
+      this.wobble += this.wobbleSpeed;
+      this.rotation += this.rotationSpeed;
+      
+      this.x += this.speedX + Math.sin(this.wobble) * 1.5 * this.z + windForce;
+      this.y += this.speedY;
+
+      if (this.y > height + 20) {
+        this.reset();
+      }
+    }
+    draw(ctx, opacityMultiplier) {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.size, this.size * 0.6, 0, 0, Math.PI * 2);
+      
+      ctx.globalAlpha = opacityMultiplier;
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      
+      ctx.restore();
+    }
+  }
+
+  for (let i = 0; i < maxPetals; i++) {
+    petals.push(new Petal());
+  }
+
+  let mouseX = width / 2;
+  document.addEventListener('mousemove', e => { mouseX = e.clientX; });
+
+  let petalsOpacity = 1;
+  ScrollTrigger.create({
+    trigger: "#hero",
+    start: "top top",
+    end: "bottom top",
+    scrub: true,
+    onUpdate: (self) => {
+      petalsOpacity = 1 - self.progress;
+    }
+  });
+
+  function render() {
+    if(!isTabActive) {
+      requestAnimationFrame(render);
+      return;
+    }
+    ctx.clearRect(0, 0, width, height);
+    if(petalsOpacity > 0.01) {
+      for (let petal of petals) {
+        petal.update(mouseX);
+        petal.draw(ctx, petalsOpacity);
+      }
+    }
+    requestAnimationFrame(render);
+  }
+  requestAnimationFrame(render);
+
+})();
+
+// ===================== 3D MODEL SCROLL INTERACTION =====================
+const model3d = document.getElementById('model3d');
+if (model3d) {
+  ScrollTrigger.create({
+    trigger: '#universo',
+    start: 'top bottom',
+    end: 'bottom top',
+    scrub: true,
+    onUpdate: (self) => {
+      const orbit = model3d.getAttribute('camera-orbit');
+      const theta = self.progress * 360;
+      model3d.setAttribute('camera-orbit', `${theta}deg 75deg auto`);
+    }
+  });
+}
+
+// ===================== SECTION WIPE TRANSITIONS =====================
+gsap.utils.toArray(['#conceito', '#pilares', '#universo', '#manifesto']).forEach((sec, i) => {
+  gsap.fromTo(sec, 
+    { clipPath: 'polygon(0 100%, 100% 100%, 100% 100%, 0% 100%)' },
+    {
+      clipPath: 'polygon(0 0%, 100% 0%, 100% 100%, 0% 100%)',
+      ease: 'power2.inOut',
+      scrollTrigger: {
+        trigger: sec,
+        start: 'top 95%',
+        end: 'top 40%',
+        scrub: 1
+      }
+    }
+  );
+});
+
+// ===================== HERO ENTRANCE =====================
+const heroLogo = document.getElementById('heroLogo');
+const logoText = heroLogo.textContent;
+heroLogo.innerHTML = '';
+logoText.split('').forEach(char => {
+  const span = document.createElement('span');
+  span.className = 'char';
+  span.textContent = char;
+  span.style.display = 'inline-block';
+  span.style.opacity = '0';
+  span.style.transform = 'translateY(-50px)';
+  heroLogo.appendChild(span);
+});
+
+function initHeroAnim() {
+  const tl = gsap.timeline({ delay: 0.2 });
+  tl.to('.hero-eyebrow', { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' })
+    .to('.hero-logo-text .char', {
+      opacity: 1, y: 0, duration: 1, stagger: 0.08, ease: 'bounce.out'
+    }, '-=0.8')
+    .fromTo('.hero-tagline', 
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 1.2, ease: 'power2.out' }, 
+    '-=0.4')
+    .to('.hero-line', { opacity: 1, duration: 0.8 }, '-=0.6')
+    .to('.scroll-hint', { opacity: 1, duration: 0.8 }, '-=0.4');
+}
+
+// ===================== CONCEITO ANIMATIONS =====================
+// Line by Line Paragraph Reveal (scrub)
+const conceitoTextElements = document.querySelectorAll('.conceito-text');
+conceitoTextElements.forEach(p => {
+  const words = splitTextWords(p);
+  gsap.to(words, {
+    opacity: 1,
+    y: 0,
+    stagger: 0.1,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: p,
+      start: 'top 85%',
+      end: 'bottom 60%',
+      scrub: true
+    }
+  });
+});
+
+gsap.fromTo('.conceito-number', 
+  { x: -100, opacity: 0 },
+  { x: -40, opacity: 1, duration: 1.5, ease: 'power3.out', scrollTrigger: { trigger: '#conceito', start: 'top 70%' } }
+);
+
+gsap.fromTo('.conceito-title', 
+  { y: 50, opacity: 0 },
+  { y: 0, opacity: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '#conceito', start: 'top 70%' } }
+);
+
+gsap.fromTo('.value-tag', 
+  { scale: 0.8, opacity: 0 },
+  { scale: 1, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'back.out(1.5)', scrollTrigger: { trigger: '.conceito-values', start: 'top 90%' } }
+);
+
+gsap.fromTo('.conceito-divider', 
+  { scaleX: 0 },
+  { scaleX: 1, duration: 1, ease: 'power3.out', transformOrigin: 'left', scrollTrigger: { trigger: '.conceito-divider', start: 'top 85%' } }
+);
+
+gsap.to('.conceito-line', {
+  scaleY: 1, duration: 1.5, ease: 'power3.out', scrollTrigger: { trigger: '.conceito-left', start: 'top 75%' }
+});
+
+// ===================== PILARES: PIN SEQUENCE =====================
+const pilaresCards = gsap.utils.toArray('.pilar-card');
+gsap.set(pilaresCards, { autoAlpha: 0, rotationY: 90, z: -200, transformPerspective: 1000 });
+
+let pilaresTl = gsap.timeline({
+  scrollTrigger: {
+    trigger: '#pilares',
+    start: 'top top',
+    end: '+=200%', // Locks scroll for 2x screen height
+    pin: true,
+    scrub: 1
+  }
+});
+
+pilaresCards.forEach((card, index) => {
+  pilaresTl.to(card, {
+    autoAlpha: 1,
+    rotationY: 0,
+    z: 0,
+    duration: 1,
+    ease: "back.out(1.2)"
+  }, index * 0.6);
+  pilaresTl.to(card.querySelector('.pilar-num'), {
+    clipPath: 'inset(0% 0 0 0)',
+    duration: 0.8,
+    ease: 'power3.out'
+  }, (index * 0.6) + 0.5);
+});
+
+// ===================== UNIVERSO MULTI-LAYER PARALLAX =====================
+gsap.to('#universo', {
+  backgroundPosition: '50% 100%',
+  ease: 'none',
+  scrollTrigger: { trigger: '#universo', start: 'top bottom', end: 'bottom top', scrub: 0.2 }
+});
+
+gsap.fromTo('.universo-text', 
+  { y: 100 },
+  { y: -100, ease: 'none', scrollTrigger: { trigger: '#universo', start: 'top bottom', end: 'bottom top', scrub: 1 } }
+);
+
+gsap.fromTo('.universo-canvas-wrap', 
+  { y: 50 },
+  { y: -50, ease: 'none', scrollTrigger: { trigger: '#universo', start: 'top bottom', end: 'bottom top', scrub: 0.5 } }
+);
+
+gsap.to('.flower-halo', {
+  opacity: 1, duration: 2, ease: 'power2.inOut', scrollTrigger: { trigger: '#universo', start: 'top 60%' }
+});
+
+gsap.to('.palette-line', {
+  scaleX: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '.palette-line', start: 'top 85%' }
+});
+
+gsap.from('.palette-dot', {
+  scrollTrigger: { trigger: '.palette-row', start: 'top 85%' },
+  scale: 0, opacity: 0, stagger: 0.1, duration: 0.5, ease: 'back.out(1.7)'
+});
+
+// ===================== MANIFESTO: CLIP-PATH EXPAND =====================
+const manifestoBody = document.getElementById('manifestoBody');
+const quoteEl = document.getElementById('manifestoQuote');
+
+quoteEl.innerHTML = quoteEl.textContent.trim().split(/\s+/).map(w => `<span class="word" style="display:inline-block; opacity:0; transform:translateY(30px);">${w}&nbsp;</span>`).join('');
+
+gsap.to('#manifestoQuote .word', {
+  scrollTrigger: { trigger: '#manifesto', start: 'top 70%' },
+  opacity: 1,
+  y: 0,
+  textShadow: '0 0 20px rgba(201,168,76,0.6)',
+  duration: 0.7,
+  stagger: {
+    each: 0.05,
+    onComplete: function() {
+      gsap.to(this.targets()[0], { textShadow: '0 0 0px rgba(201,168,76,0)', duration: 0.5 });
+    }
+  },
+  ease: 'power3.out'
+});
+
+gsap.fromTo(manifestoBody,
+  { clipPath: 'inset(40% 40% 40% 40%)', opacity: 0, scale: 0.8 },
+  { 
+    clipPath: 'inset(0% 0% 0% 0%)', 
+    opacity: 1,
+    scale: 1,
+    duration: 1.5,
+    ease: 'power3.out',
+    scrollTrigger: { trigger: manifestoBody, start: 'top 80%', end: 'top 30%', scrub: 1 }
+  }
+);
+
+gsap.fromTo('#manifestoSig', 
+  { opacity: 0, y: 30 },
+  { opacity: 1, y: 0, duration: 1, delay: 0.5, ease: 'power2.out', scrollTrigger: { trigger: '#manifestoSig', start: 'top 90%' } }
+);
+
+gsap.to('.manifesto-ornament-bottom', {
+  opacity: 1, y: -10, duration: 1, delay: 1, ease: 'power2.out', scrollTrigger: { trigger: '#manifestoSig', start: 'top 90%' }
+});
+
+// Footer top line
+gsap.to('.footer-top-line', {
+  scaleX: 1, duration: 1.5, ease: 'power3.out', scrollTrigger: { trigger: 'footer', start: 'top 90%' }
+});
+
+// ===================== CARD INTERACTIVITY (post-pin) =====================
+document.querySelectorAll('.pilar-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    if (window.innerWidth < 768) return;
+    const rect = card.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);
+    const dy = (e.clientY - cy) / (rect.height / 2);
+    gsap.to(card, {
+      rotateY: dx * 8,
+      rotateX: -dy * 5,
+      z: 20,
+      duration: 0.4,
+      ease: 'power2.out',
+      transformPerspective: 800
+    });
+  });
+  card.addEventListener('mouseleave', () => {
+    gsap.to(card, { rotateY: 0, rotateX: 0, z: 0, duration: 0.6, ease: 'power3.out' });
+  });
+});
+
+</script>
+</body>
+</html>
