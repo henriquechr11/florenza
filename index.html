@@ -1104,6 +1104,10 @@ function raf(time) {
 }
 requestAnimationFrame(raf);
 
+// Trava o scroll inicial até a animação terminar
+lenis.stop();
+document.body.style.overflow = 'hidden';
+
 // Integrate with GSAP
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time)=>{ lenis.raf(time * 1000); });
@@ -1337,7 +1341,13 @@ logoText.split('').forEach(char => {
 });
 
 function initHeroAnim() {
-  const tl = gsap.timeline({ delay: 0.2 });
+  const tl = gsap.timeline({ 
+    delay: 0.2,
+    onComplete: () => {
+      lenis.start(); // Destrava o scroll do Lenis
+      document.body.style.overflow = ''; // Restaura o scroll nativo
+    }
+  });
   tl.to('.hero-eyebrow', { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' })
     .to('.hero-logo-text .char', {
       opacity: 1, y: 0, duration: 1, stagger: 0.08, ease: 'bounce.out'
